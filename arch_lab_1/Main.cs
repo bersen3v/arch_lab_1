@@ -1,5 +1,4 @@
 ﻿using BusinessLogic;
-using Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace arch_lab_1
 {
@@ -62,9 +62,10 @@ namespace arch_lab_1
         public void UpdateListBox()
         {
             listBox1.Items.Clear();
-            foreach (Student student in logic.Students)
+            Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
+            foreach (int student in students.Keys)
             {
-                listBox1.Items.Add($"{student.Name} {student.Speciality} {student.Group}");
+                listBox1.Items.Add($"{students[student]["name"]} {students[student]["speciality"]} {students[student]["group"]}");
             }
         }
     }

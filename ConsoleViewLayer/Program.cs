@@ -1,5 +1,4 @@
 ﻿using BusinessLogic;
-using Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +13,7 @@ namespace ConsoleViewLayer
     internal class Program
     {
         public static Logic logic = Logic.GetInstance();
+       
         public static string message = @"
 
 ----------------------------------------------------
@@ -31,9 +31,6 @@ namespace ConsoleViewLayer
         static void Main(string[] args)
         {
             Console.Write(message);
-
-            logic.CreateRandomStudents(10);
-            
             while (true)
             {
                 string input = Console.ReadLine();
@@ -54,9 +51,11 @@ namespace ConsoleViewLayer
 
         static void ShowStudents()
         {
-            foreach(Student student in logic.Students)
+            int count = 0;
+            Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
+            foreach(int student in students.Keys)
             {
-                Console.WriteLine($"фио: {student.Name}, специальность: {student.Speciality}, группа: {student.Group}");
+                Console.WriteLine($"{count++} | {students[student]["name"]} {students[student]["speciality"]} {students[student]["group"]}");
             }
         }
 
@@ -85,12 +84,11 @@ namespace ConsoleViewLayer
         }
         static void DeleteStudent()
         {
-            if (logic.Students.Count == 0) Console.WriteLine("Удалять некого");
+            Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
+
+            if (students.Count == 0) Console.WriteLine("Удалять некого");
             int index = 0;
-            foreach(Student student in logic.Students)
-            {
-                Console.WriteLine($"{index++} | {student.Name} {student.Group}");
-            }
+            ShowStudents();
            
             int input = -1;
             bool isValid = false;
@@ -109,12 +107,10 @@ namespace ConsoleViewLayer
         }
         static void UpdateStudent()
         {
-            if (logic.Students.Count == 0) Console.WriteLine("Обновлять некого");
+            Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
+            if (students.Count == 0) Console.WriteLine("Обновлять некого");
             int index = 0;
-            foreach (Student student in logic.Students)
-            {
-                Console.WriteLine($"{index++} | {student.Name} {student.Group}");
-            }
+            ShowStudents() ;
 
             int input = -1;
             bool isValid = false;

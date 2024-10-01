@@ -1,5 +1,4 @@
 ﻿using BusinessLogic;
-using Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 
 namespace arch_lab_1
 {
@@ -18,26 +18,13 @@ namespace arch_lab_1
         public ChangeStudent()
         {
             InitializeComponent();
-            foreach(Student student in logic.Students)
+            Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
+            foreach (int student in students.Keys)
             {
-                comboBox1.Items.Add(student.Name);
+                comboBox1.Items.Add($"{students[student]["name"]} {students[student]["speciality"]}");
             }
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -47,9 +34,10 @@ namespace arch_lab_1
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            textBox1.Text = logic.Students[comboBox1.SelectedIndex].Name;
-            textBox2.Text = logic.Students[comboBox1.SelectedIndex].Speciality;
-            textBox3.Text = logic.Students[comboBox1.SelectedIndex].Group;
+            var students = logic.GetStudentsAsMap();
+            textBox1.Text = students[comboBox1.SelectedIndex]["name"];
+            textBox2.Text = students[comboBox1.SelectedIndex]["speciality"];
+            textBox3.Text = students[comboBox1.SelectedIndex]["group"];
         }
     }
 }

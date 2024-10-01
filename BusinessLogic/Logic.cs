@@ -21,14 +21,21 @@ namespace BusinessLogic
             return Instance;
         }
 
-        Logic()
+
+       private Logic()
         {
             Students = new List<Student>();
         }
 
         public List<Student> Students { get; private set; }
 
-
+        /// <summary>
+        /// Метод проверяет строки на валидность и добавляет студента с список
+        /// </summary>
+        /// <param name="Name">ФИО студента</param>
+        /// <param name="Speciality">Специальность</param>
+        /// <param name="Group">Группа</param>
+        /// <returns>Возвращает бульку, говорящую о том выполнена операция успешно или нет</returns>
         public bool AddStudent(string Name, string Speciality, string Group)
         {
             bool NameIsValid = !string.IsNullOrEmpty(Name);
@@ -45,6 +52,11 @@ namespace BusinessLogic
             return false;
         }
 
+        /// <summary>
+        /// Метод проверяет что индекс валиден и удаляет студента по индексу
+        /// </summary>
+        /// <param name="index">Индекс студента в списке</param>
+        /// <returns>Возвращает бульку, говорящую о том выполнена операция успешно или нет</returns>
         public bool RemoveStudent(int index)
         {
             if(Students.Count>0 && index <Students.Count && index >=0)
@@ -55,6 +67,14 @@ namespace BusinessLogic
             return false;
         }
 
+        /// <summary>
+        /// Обновляет студента по заданному индексу. Проверяет изменились ли значения и не пустые ли они и изменяет, если пришли новые значения
+        /// </summary>
+        /// <param name="index">Индекс студента вв списке</param>
+        /// <param name="Name">Имя студента</param>
+        /// <param name="Speciality">Специальность студента</param>
+        /// <param name="Group">Группа студента</param>
+        /// <returns>Возвращает бульку, говорящую о том выполнена операция успешно или нет</returns>
         public bool UpdateStudent(int index, string Name, string Speciality, string Group) 
         {
             bool accept = true;
@@ -93,6 +113,11 @@ namespace BusinessLogic
 
         }
 
+        
+        /// <summary>
+        /// Подготавливает словарь для гистограммы. Возвращает словар <строка, число>
+        /// </summary>
+        /// <returns>Возвращает словарь(string,int) в котором строка=специальность инт=количество студентов</returns>
         public Dictionary<string, int> GetSpecialityMap()
         {
             Dictionary<string, int> dict = new Dictionary<string, int>();
@@ -105,6 +130,10 @@ namespace BusinessLogic
             return dict;
         }
 
+        /// <summary>
+        /// Создает рандомных студентов, по количеству равных count
+        /// </summary>
+        /// <param name="count">Количество студентов, которое необходимо создать</param>
         public void CreateRandomStudents(int count) 
         {
             Random random = new Random();
@@ -120,6 +149,23 @@ namespace BusinessLogic
                     Group: group[random.Next(0,group.Count)]
                     ));
             }
+        }
+
+        /// <summary>
+        /// Метод возвращает словарь для отображения студентов во вьюхе
+        /// </summary>
+        /// <returns>Врозвращает Dictionary<int, Dictionary<string, string>> в котором int=индекс студента, внутренний словарь = хранитель переменных </returns>
+        public Dictionary<int, Dictionary<string, string>> GetStudentsAsMap()
+        {
+            Dictionary<int, Dictionary<string, string>> students = new Dictionary<int, Dictionary<string, string>>();
+            for(int i = 0; i < Students.Count; i++)
+            {
+                students[i] = new Dictionary<string, string>();
+                students[i]["name"] = Students[i].Name;
+                students[i]["speciality"] = Students[i].Speciality;
+                students[i]["group"] = Students[i].Group;
+            }
+            return students;
         }
 
     }

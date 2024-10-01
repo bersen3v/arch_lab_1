@@ -82,7 +82,6 @@
             this.label2.Size = new System.Drawing.Size(47, 20);
             this.label2.TabIndex = 4;
             this.label2.Text = "ФИО";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label3
             // 
@@ -92,7 +91,6 @@
             this.label3.Size = new System.Drawing.Size(128, 20);
             this.label3.TabIndex = 6;
             this.label3.Text = "Специальность";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // textBox2
             // 
@@ -100,7 +98,6 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(243, 26);
             this.textBox2.TabIndex = 5;
-            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // label4
             // 
