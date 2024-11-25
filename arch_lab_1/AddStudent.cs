@@ -1,4 +1,5 @@
 ﻿using BusinessLogic;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +14,8 @@ namespace arch_lab_1
 {
     public partial class AddStudent : Form
     {
-        Logic logic = Logic.GetInstance();
+        public static IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
+        static ILogic logic = ninjectKernel.Get<ILogic>();
         public AddStudent()
         {
             InitializeComponent();

@@ -6,28 +6,35 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using DataAccessLayer;
+using System.Text.RegularExpressions;
 
 namespace BusinessLogic
 {
-    public class Logic
+    public class Logic : ILogic
     {
+
+        private IRepository<Student> Repo;
+
         private static Logic Instance;
-        public static Logic GetInstance() 
+
+        public static Logic GetInstance(IRepository<Student> repository) 
         {
             if(Instance == null)
             {
-                Instance = new Logic();
+                Instance = new Logic(repository);
             }
             return Instance;
         }
 
 
-       private Logic()
+       private Logic(IRepository<Student> repository)
         {
-            Students = new List<Student>();
+            Repo = repository;
+            //var context = new StudentContext();
+            //Repo = new EntityRepository<Student>(context);
+            //Repo = new DapperRepository();
         }
-
-        public List<Student> Students { get; private set; }
 
         /// <summary>
         /// Метод проверяет строки на валидность и добавляет студента с список
@@ -44,8 +51,14 @@ namespace BusinessLogic
 
             if (NameIsValid && SpecialitiIsValid && GroupIsValid)
             {
-                Student NewStudent = new Student(Name, Speciality, Group);
-                Students.Add(NewStudent);
+                Student NewStudent = new Student()
+                {
+                    Name = Name,
+                    Speciality = Speciality,
+                    GroupName = Group,
+                };
+                
+                Repo.Create(NewStudent);
                 return true;
             }
 
@@ -55,16 +68,12 @@ namespace BusinessLogic
         /// <summary>
         /// Метод проверяет что индекс валиден и удаляет студента по индексу
         /// </summary>
-        /// <param name="index">Индекс студента в списке</param>
+        /// <param name="id">Индекс студента в списке</param>
         /// <returns>Возвращает бульку, говорящую о том выполнена операция успешно или нет</returns>
-        public bool RemoveStudent(int index)
+        public bool RemoveStudent(int id)
         {
-            if(Students.Count>0 && index <Students.Count && index >=0)
-            {
-                Students.RemoveAt(index);
-                return true;
-            }
-            return false;
+            Repo.Delete(id);
+            return true;
         }
 
         /// <summary>
@@ -75,42 +84,35 @@ namespace BusinessLogic
         /// <param name="Speciality">Специальность студента</param>
         /// <param name="Group">Группа студента</param>
         /// <returns>Возвращает бульку, говорящую о том выполнена операция успешно или нет</returns>
-        public bool UpdateStudent(int index, string Name, string Speciality, string Group) 
+        public bool UpdateStudent(int id, string Name, string Speciality, string Group) 
         {
-            bool accept = true;
-            if (index >= Students.Count || index < 0) return false;
-            if (Students.Count <= 0) return false;
+            bool NameIsValid = !string.IsNullOrEmpty(Name);
+            bool SpecialitiIsValid = !string.IsNullOrEmpty(Speciality);
+            bool GroupIsValid = !string.IsNullOrEmpty(Group);
 
-            if (Students[index].Name != Name && !string.IsNullOrEmpty(Name))
-            {
-                Students[index].Name = Name;
-            }
-            else
-            {
-                accept = false;
-            }
+            Console.WriteLine(Name);
 
-            if (Students[index].Speciality != Name && !string.IsNullOrEmpty(Speciality))
+            if (NameIsValid && SpecialitiIsValid && GroupIsValid)
             {
-                Students[index].Speciality = Speciality;
+                foreach(Student student in Repo.ReadAll())
+                {
+                    if(student.Id == id) 
+                    {
+                        Console.WriteLine(student.Name);
+                        Student NewStudent = new Student()
+                        {
+                            Id = student.Id,
+                            Name = Name,
+                            Speciality = Speciality,
+                            GroupName = Group,
+                        };
+                        Repo.Update(NewStudent);
+                        return true;
+                    }
+                }
+                
             }
-            else
-            {
-                accept = false;
-            }
-            if (Students[index].Group != Name && !string.IsNullOrEmpty(Group))
-            {
-                Students[index].Group = Group;
-            }
-            else
-            {
-                accept = false;
-            }
-
-            if (accept) return true;
-             
             return false;
-
         }
 
         
@@ -120,6 +122,7 @@ namespace BusinessLogic
         /// <returns>Возвращает словарь(string,int) в котором строка=специальность инт=количество студентов</returns>
         public Dictionary<string, int> GetSpecialityMap()
         {
+            List<Student> Students = Repo.ReadAll();
             Dictionary<string, int> dict = new Dictionary<string, int>();
             foreach (Student student in Students)
             {
@@ -137,17 +140,18 @@ namespace BusinessLogic
         public void CreateRandomStudents(int count) 
         {
             Random random = new Random();
-            List<string> f = new List<string>() {"Олег","Степан","Нурбол","Иван","Георгий" };
-            List<string> n = new List<string>() {"Иванов", "Степанов","Икитов", "Николаев", "Тупой"};
+            List<string> f = new List<string>() {"Oleg","Stepan","Nurbol","Ivan","Gerge" };
+            List<string> n = new List<string>() {"Ivanov", "Stepanov","Ikitov", "Nikolaev", "Tupoy"};
             List<string> group = new List<string>() { "11", "12", "13","14" };
             List<string> speciality = new List<string> { "09.03.02", "09.03.03", "09.03.04"};
             for(; count > 0;  count--)
             {
-                Students.Add(new Student(
-                    Name: f[random.Next(0,f.Count)] +" "+ n[random.Next(0,n.Count)], 
-                    Speciality: speciality[random.Next(0,speciality.Count)], 
-                    Group: group[random.Next(0,group.Count)]
-                    ));
+                Repo.Create(new Student()
+                {
+                    Name = f[random.Next(0, f.Count)] + " " + n[random.Next(0, n.Count)],
+                    Speciality = speciality[random.Next(0, speciality.Count)],
+                    GroupName = group[random.Next(0, group.Count)]
+                });
             }
         }
 
@@ -157,13 +161,15 @@ namespace BusinessLogic
         /// <returns>Врозвращает Dictionary<int, Dictionary<string, string>> в котором int=индекс студента, внутренний словарь = хранитель переменных </returns>
         public Dictionary<int, Dictionary<string, string>> GetStudentsAsMap()
         {
+            List<Student> Students = Repo.ReadAll();
             Dictionary<int, Dictionary<string, string>> students = new Dictionary<int, Dictionary<string, string>>();
             for(int i = 0; i < Students.Count; i++)
             {
-                students[i] = new Dictionary<string, string>();
-                students[i]["name"] = Students[i].Name;
-                students[i]["speciality"] = Students[i].Speciality;
-                students[i]["group"] = Students[i].Group;
+                students[Students[i].Id] = new Dictionary<string, string>();
+                students[Students[i].Id]["id"] = Students[i].Id.ToString();
+                students[Students[i].Id]["name"] = Students[i].Name;
+                students[Students[i].Id]["speciality"] = Students[i].Speciality;
+                students[Students[i].Id]["group"] = Students[i].GroupName;
             }
             return students;
         }

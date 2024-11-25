@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Deployment.Internal;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Model
 {
-    public class Student
+    public class Student : IDomainObject
     {
-        public string Name;
-        public string Speciality;
-        public string Group;
-
-        public Student(string Name, string Speciality, string Group) { 
-            this.Name = Name;
-            this.Speciality = Speciality;
-            this.Group = Group;
-        }
+        public int Id { get;  set; }
+        public string Name { get; set; }
+        public string Speciality { get; set; }
+        public string GroupName { get; set; }
+        
     }
 }

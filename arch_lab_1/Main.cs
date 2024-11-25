@@ -1,4 +1,5 @@
 ﻿using BusinessLogic;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +16,10 @@ namespace arch_lab_1
     public partial class Main : Form
     {
         int selectedIndex = 0;
-        Logic logic = Logic.GetInstance();
+
+        public static IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
+        static ILogic logic = ninjectKernel.Get<ILogic>();
+
         public Main()
         {
             InitializeComponent();
@@ -29,7 +33,11 @@ namespace arch_lab_1
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
-            logic.RemoveStudent(selectedIndex);
+            Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
+            if (selectedIndex >= 0 && selectedIndex < students.Count)
+            {
+                logic.RemoveStudent(students.Keys.ToList()[selectedIndex]);
+            }
         }
 
         private void ChangeButton_Click(object sender, EventArgs e)
@@ -65,7 +73,7 @@ namespace arch_lab_1
             Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
             foreach (int student in students.Keys)
             {
-                listBox1.Items.Add($"{students[student]["name"]} {students[student]["speciality"]} {students[student]["group"]}");
+                listBox1.Items.Add($"{students[student]["id"]} {students[student]["name"]} {students[student]["speciality"]} {students[student]["group"]}");
             }
         }
     }

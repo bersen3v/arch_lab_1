@@ -1,4 +1,5 @@
 ﻿using BusinessLogic;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,12 @@ namespace ConsoleViewLayer
 {
     internal class Program
     {
-        public static Logic logic = Logic.GetInstance();
-       
+
+        //public static Logic logic = Logic.GetInstance();
+        public static IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
+        static ILogic logic = ninjectKernel.Get<ILogic>();
+        
+
         public static string message = @"
 
 ----------------------------------------------------
@@ -29,7 +34,8 @@ namespace ConsoleViewLayer
 ";
 
         static void Main(string[] args)
-        {
+        {   
+
             Console.Write(message);
             while (true)
             {
@@ -51,11 +57,10 @@ namespace ConsoleViewLayer
 
         static void ShowStudents()
         {
-            int count = 0;
             Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
             foreach(int student in students.Keys)
             {
-                Console.WriteLine($"{count++} | {students[student]["name"]} {students[student]["speciality"]} {students[student]["group"]}");
+                Console.WriteLine($"{students[student]["id"]} | {students[student]["name"]} {students[student]["speciality"]} {students[student]["group"]}");
             }
         }
 
@@ -94,7 +99,7 @@ namespace ConsoleViewLayer
             bool isValid = false;
             while(!isValid)
             {
-                Console.Write("Введи индекс студента, которого хочешь удалить: ");
+                Console.Write("Введи id студента, которого хочешь удалить: ");
                 isValid = int.TryParse(Console.ReadLine(), out input);
             }
             bool answer = logic.RemoveStudent(input);
@@ -109,14 +114,13 @@ namespace ConsoleViewLayer
         {
             Dictionary<int, Dictionary<string, string>> students = logic.GetStudentsAsMap();
             if (students.Count == 0) Console.WriteLine("Обновлять некого");
-            int index = 0;
             ShowStudents() ;
 
             int input = -1;
             bool isValid = false;
             while (!isValid)
             {
-                Console.Write("Введи индекс студента, которого хочешь обновить: ");
+                Console.Write("Введи id студента, которого хочешь обновить: ");
                 isValid = int.TryParse(Console.ReadLine(), out input);
             }
 

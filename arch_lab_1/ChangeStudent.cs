@@ -1,4 +1,5 @@
 ﻿using BusinessLogic;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +15,8 @@ namespace arch_lab_1
 {
     public partial class ChangeStudent : Form
     {
-        Logic logic = Logic.GetInstance();
+        public static IKernel ninjectKernel = new StandardKernel(new SimpleConfigModule());
+        static ILogic logic = ninjectKernel.Get<ILogic>();
         public ChangeStudent()
         {
             InitializeComponent();
@@ -28,16 +30,17 @@ namespace arch_lab_1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            logic.UpdateStudent(comboBox1.SelectedIndex, textBox1.Text, textBox2.Text, textBox3.Text);
+            var students = logic.GetStudentsAsMap();
+            logic.UpdateStudent(int.Parse(students[students.Keys.ToList()[comboBox1.SelectedIndex]]["id"]), textBox1.Text, textBox2.Text, textBox3.Text);
             this.Close();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             var students = logic.GetStudentsAsMap();
-            textBox1.Text = students[comboBox1.SelectedIndex]["name"];
-            textBox2.Text = students[comboBox1.SelectedIndex]["speciality"];
-            textBox3.Text = students[comboBox1.SelectedIndex]["group"];
+            textBox1.Text = students[students.Keys.ToList()[comboBox1.SelectedIndex]]["name"];
+            textBox2.Text = students[students.Keys.ToList()[comboBox1.SelectedIndex]]["speciality"];
+            textBox3.Text = students[students.Keys.ToList()[comboBox1.SelectedIndex]]["group"];
         }
     }
 }
